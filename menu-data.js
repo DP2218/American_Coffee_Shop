@@ -311,6 +311,7 @@ const MENU_DATA = [
 
     const tabsEl = document.getElementById("menuTabs");
     const itemsEl = document.getElementById("menuItems");
+    const selectEl = document.getElementById("menuTabsSelect");
 
     if (!tabsEl || !itemsEl) return;
 
@@ -326,13 +327,34 @@ const MENU_DATA = [
 
         tabsEl.appendChild(tab);
 
+        if (selectEl) {
+
+            const option = document.createElement("option");
+            option.value = index;
+            option.textContent = group.category;
+            selectEl.appendChild(option);
+
+        }
+
     });
+
+    if (selectEl) {
+
+        selectEl.addEventListener("change", () => {
+            showCategory(parseInt(selectEl.value, 10));
+        });
+
+    }
 
     function showCategory(index) {
 
         document.querySelectorAll(".menu-tab").forEach((tab, i) => {
             tab.classList.toggle("active", i === index);
         });
+
+        if (selectEl) {
+            selectEl.value = index;
+        }
 
         const group = MENU_DATA[index];
 
@@ -366,6 +388,8 @@ const MENU_DATA = [
         });
 
         itemsEl.appendChild(grid);
+
+        document.dispatchEvent(new CustomEvent("menu:rendered"));
 
     }
 
