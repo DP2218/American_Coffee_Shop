@@ -103,30 +103,47 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // SCROLL REVEAL
 // ==========================
 
-const revealElements = document.querySelectorAll(
-    ".card,.review,.gallery-grid img,.features div,.left img,.contact-box div,.why-card"
-);
+const revealSelector =
+    ".card,.review,.gallery-grid img,.features div,.left img,.right,.contact-box div,.why-card,.stat,.menu-item,.title,.menu-sub,.footer-col,.contact iframe";
 
-function reveal() {
+const revealObserver = new IntersectionObserver((entries, observer) => {
 
-    const trigger = window.innerHeight - 120;
+    entries.forEach(entry => {
 
-    revealElements.forEach(el => {
-
-        const top = el.getBoundingClientRect().top;
-
-        if (top < trigger) {
-
-            el.classList.add("active");
-
+        if (entry.isIntersecting) {
+            entry.target.classList.add("active");
+            observer.unobserve(entry.target);
         }
+
+    });
+
+}, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+
+function observeReveal(root = document) {
+
+    const groups = new Map();
+
+    root.querySelectorAll(revealSelector).forEach(el => {
+
+        if (el.classList.contains("reveal")) return;
+
+        el.classList.add("reveal");
+
+        const parent = el.parentElement;
+        const count = groups.get(parent) || 0;
+
+        el.style.transitionDelay = Math.min(count * 80, 480) + "ms";
+        groups.set(parent, count + 1);
+
+        revealObserver.observe(el);
 
     });
 
 }
 
-window.addEventListener("scroll", reveal);
-window.addEventListener("load", reveal);
+observeReveal();
+
+document.addEventListener("menu:rendered", () => observeReveal());
 
 // ==========================
 // ACTIVE NAVIGATION
